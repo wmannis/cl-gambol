@@ -50,7 +50,6 @@
 (defvar *auto-backtrack*      nil "return all solutions if true")
 (defvar *last-continuation*   nil "saved state of the system")
 (defvar *tracing*             nil "if t, tracing is turned on")
-(defvar *all-continuations*   nil "list of all continuations")
 (defvar *lips*                  0 "logical inferences per second")
 (defvar *trail*               nil "the trail, for backtracking")
 (defvar *x-env*               nil "env for goals")
@@ -399,7 +398,6 @@
 
 ;; Attempt to solve a list of goals with respect to rule-base.
 (defun pl-solve (goals)
-  (setf *all-continuations* nil)
   (setf *top-level-vars* nil)
   (setf *top-level-envs* nil)
   (setf *trail* nil)
@@ -873,16 +871,5 @@
 	((atom exp) exp)
 	(t (cons (filter-vars (car exp))
 		 (filter-vars (cdr exp))))))
-
-;; Explain how the last query was solved.
-(defun how ()
-  (dolist (continuation (reverse *all-continuations*))
-    (let* ((event (cont-trace continuation))
-	   (rule (cdr event)))
-      (format t "Goal: ~S~%" (car event))
-      (if rule
-          (if (listp rule)
-              (format t "Rule: ~S~%" `(*- ,@rule))
-              (format t "Fact: ~S~%" rule))))))
 
 ;; end of prolog.lisp
