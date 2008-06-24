@@ -1,0 +1,16 @@
+#summary common Prolog examples gambolized
+
+Just some things to try out:
+
+{{{
+;;; Towers of Hanoi
+(*- (move 1 ?x ?y ??)
+    (lisp (format t "Move top disk from ~A to ~A.~%" '?x '?y)))
+(*- (move ?n ?x ?y ?z)
+    (lop (> ?n 1))
+    (is ?m (lop (- ?n 1)))
+    (move ?m ?x ?z ?y)
+    (move 1 ?x ?y ??)
+    (move ?m ?z ?y ?x))
+(?- (move 3 left right center))
+}}}
