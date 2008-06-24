@@ -36,13 +36,17 @@
            #:pl-solve-next
            #:pl-solve-rest
            #:pl-solve-all
+           #:do-solve-all
            #:clear-rules
            #:print-rules
            #:print-rule
            #:cut
            #:is
+           #:lop
+           #:lisp
            #:yes
            #:no
-           #:fail))
+           #:fail
+           #:*lips*))
 
 ;;; package.lisp ends here
