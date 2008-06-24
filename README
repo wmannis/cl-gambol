@@ -1,0 +1,20 @@
+                  Gambol - a slighly modified Frolic
+
+
+The GAMBOL package is a trivially modified extraction of the logic
+programming portion of the Frolic system written at the University of
+Utah.  I have made a few changes to get it to compile under a modern
+Common Lisp, in addition to a few style changes that don't alter any
+functionality.  In the original code macros are used freely where
+inline functions might do better.  I have separated from it all
+references to Frobs.
+
+The first big change to the original is that logic variables start
+with the more traditional question mark, ?WHO, rather than the leading
+underscore of the original, _WHO.
+
+The second large change is that I removed the ^ and ^^ read macros and
+replaced them with what look like predicates, LISP and LISP-ALWAYS.  I
+don't like monkeying with the read-table without a very good reason,
+and this trivial sugaring seemed excessive.
+
