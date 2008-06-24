@@ -1,38 +1,153 @@
-(in-package :gambol)
+(asdf:oos 'asdf:load-op :gambol)
+(asdf:oos 'asdf:load-op :lift)
 
-(clear-rules)  ; start with a clean slate
+(defpackage :gambol-tests
+  (:use :cl :gambol :lift))
 
-(*- (member ?x (?x . ??)))
-(*- (member ?x (?? . ?l)) (member ?x ?l))
+(in-package :gambol-tests)
 
+(deftestsuite gambol-tests () ()
+  ;; start and end with a clean slate
+  (:setup (clear-rules))
+  (:teardown (clear-rules)))
 
-(*- (is-symbol? ?form)
-    (is symbol (lisp (type-of '?form))))
-
-(*- (is-integer? ?form)
-    (lisp (typep '?form 'integer)))
-
-;;;; Quicksort, translated from lips-test.l
-(*- (partition (?x . ?l) ?y (?x . ?l1) ?l2)
-    (lisp (< ?x ?y)) (cut)
-    (partition ?l ?y ?l1 ?l2))
-
-(*- (partition (?x . ?l) ?y ?l1 (?x . ?l2))
-    (partition ?l ?y ?l1 ?l2))
-
-(*- (partition nil ?QQQQ nil nil))
+(defun get-unified-value (item environment)
+  "yank the value of a logical variable out of a SOLVE'd environment"
+  (cdr (assoc item (car environment))))
 
 
-(*- (qsort (?x . ?l) ?r ?r0)
-    (partition ?l ?x ?l1 ?l2)
-    (qsort ?l2 ?r1 ?r0)
-    (qsort ?l1 ?r (?x . ?r1)))
+;;; Let's start with basic list manipulations.
+(addtest (gambol-tests)
+  head
+  (ensure-same
+   'A
+   (progn
+     (*- (head ?h (?h . ??)))
+     (get-unified-value '?h (pl-solve-all '((head ?h (a b c))))))))
 
-(*- (qsort nil ?r ?r))
+(addtest (gambol-tests)
+  tail
+  (ensure-same
+   '(B C)
+   (progn
+     (*- (tail ?t (?? . ?t)))
+     (get-unified-value '?t (pl-solve-all '((tail ?t (a b c))))))))
 
-(*- (list50 (27 74 17 33 94 18 46 83 65 2 32 53 28 85 99 47 28 82 6 11 55 29 39
-	    81 90 37 10 0 66 51 7 21 85 27 31 63 75 4 95 99 11 28 61 74 18 92
-	    40 53 59 8)))
+(addtest (gambol-tests)
+  member
+  (ensure-same
+   '(T)
+   (progn
+     (*- (member ?x (?x . ??)))
+     (*- (member ?x (?? . ?l))
+         (member ?x ?l))
+     (pl-solve-all '((member 3 (1 2 3 4 5)))))))
 
-(??- (list50 ?l) (qsort ?l ?x nil) (lisp-always (pprint '?x)))
-(??- (list50 ?l) (qsort ?l ?x nil))
+(addtest (gambol-tests)
+  member-1
+  (ensure-same
+   '(a b c d)
+   (progn
+     (*- (append (?x . ?xs) ?ys (?x . ?zs))
+         (append ?xs ?ys ?zs))
+     (*- (append nil ?ys ?ys))
+     (get-unified-value '?a (pl-solve-all '((append (a b) (c d) ?a)))))))
+
+(addtest (gambol-tests)
+  member-2
+  (ensure-same
+   '(c d)
+   (progn
+     (*- (append (?x . ?xs) ?ys (?x . ?zs))
+         (append ?xs ?ys ?zs))
+     (*- (append nil ?ys ?ys))
+     (get-unified-value '?a (pl-solve-all '((append (a b) ?a (a b c d))))))))
+
+;;; More fun to verify: (pl-solve-all '((append ?a ?b (a b c d))))
+
+(*- (reverse (?x . ?xs) ?zs)
+    (reverse ?xs ?ys)
+    (append ?ys (?x) ?zs))
+(*- (reverse nil nil))
+
+(pl-solve-all
+ '((reverse (1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0) ?x)))
+
+
+(addtest (gambol-tests)
+  closed-world
+  (ensure-null
+   (progn
+     (*- (member ?x (?x . ??)))
+     (*- (member ?x (?? . ?l))
+         (member ?x ?l))
+     (*- (not ?p)      ; assuming a closed world...
+         ?p
+         (cut)
+         (fail))
+     (*- (not ?p))
+     (pl-solve-all '((not (member 5 (1 2 3 4 5))))))))
+
+
+
+(addtest (gambol-tests)
+  lop
+  (ensure-same
+   6
+   (progn
+     (*- (length nil 0))
+     (*- (length (?? . ?t) ?n)
+         (length ?t ?n1)
+         (is ?n (lop (1+ ?n1))))
+     (get-unified-value '?l (pl-solve-all '((length (a b c 1 2 3) ?l)))))))
+     
+
+
+;;; Quicksort, translated from lips-test.l
+(addtest (gambol-tests)
+  quicksort
+  (ensure
+    (progn
+      (*- (partition (?x . ?l) ?y (?x . ?l1) ?l2)
+          (lop (< ?x ?y))
+          (cut)
+          (partition ?l ?y ?l1 ?l2))
+      
+      (*- (partition (?x . ?l) ?y ?l1 (?x . ?l2))
+          (partition ?l ?y ?l1 ?l2))
+      
+      (*- (partition nil ?QQQQ nil nil))
+      
+      (*- (qsort (?x . ?l) ?r ?r0)
+          (partition ?l ?x ?l1 ?l2)
+          (qsort ?l2 ?r1 ?r0)
+          (qsort ?l1 ?r (?x . ?r1)))
+      
+      (*- (qsort nil ?r ?r))
+      
+      ;;; Produce random list, then compare sorted results.
+      (let* ((rands (loop for a from 0 to 100 collecting (random 100)))
+             (sorted (sort (copy-seq rands) #'<)))
+        (pl-assert `((list100 ,rands)))
+        (equalp sorted (get-unified-value '?x (pl-solve-all '((list100 ?l) (qsort ?l ?x nil)))))))))
+
+(addtest (gambol-tests)
+  factorial
+  (ensure-same
+   (labels ((fac (n)
+              (if (<= n 1)
+                  1
+                  (* n (fac (1- n))))))
+     (fac 33))
+   (progn
+      ;;; Factorial: the slow version.
+     (*- (factorial 0 1))
+     (*- (factorial ?n ?f)
+         (lop (> ?n 0))
+         (is ?n1 (lop (1- ?n)))
+         (factorial ?n1 ?f1)
+         (is ?f (lop (* ?n ?f1))))
+     (get-unified-value '?f (pl-solve-all '((factorial 33 ?f)))))))
+
+
+;;; tests.lisp ends here

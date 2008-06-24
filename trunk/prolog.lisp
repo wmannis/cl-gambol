@@ -1,16 +1,7 @@
 ;;; -*- Mode: LISP; Syntax: Common-lisp; Package: gambol; Lowercase: Yes -*-
 ;;; $Id: prolog.lisp,v 1.1 2008-06-15 16:49:34-05 annis Exp annis $
 ;;;
-;;; This is a modification of the Frolic [1] system which can be found at
-;;; the CMU AI Repository.  Under the terms of inclusion in the Repository,
-;;; one is permitted to copy, distribute and prepare derivative works
-;;; of Repository software [2].  My own largely trivial modifications to
-;;; the system are released under the MIT license.  See the README for
-;;; an explanation of where this package differs from Frolic.
-;;;
-;;; [1] http://www.cs.cmu.edu/afs/cs.cmu.edu/project/ai-repository/ai/lang/prolog/impl/prolog/frolic/
-;;; [2] http://www.cs.cmu.edu/afs/cs.cmu.edu/project/ai-repository/ai/readme.txt
-
+;;; See README for copyright information about this modification of FROLIC.
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
@@ -37,21 +28,18 @@
 ; Prolog queries are posed with:  (?- goal goal ...)
 ;
 ; * logical variables are preceeded with a question mark (?)
-; * a lisp predicate in the body of a rule is wrapped in (lisp (pred))
+; * a lisp predicate in the body of a rule is wrapped in (lop (pred))
 ;   a lisp predicate succeeds if it returns non-nil, and fails otherwise
 ; * logical variables may be used in lisp predicates provided they are bound
 ;   by a prolog clause prior to their use - 
-;          example (?- (foo ?x) (lisp (equal ?x 2)))
-; * use solve-one, solve-next, solve-rest, solve-all to return prolog
-;   bindings to lisp
+;          example (?- (foo ?x) (lop (equal ?x 2)))
+; * use pl-solve-one, pl-solve-next, pl-solve-rest and pl-solve-all to
+;   return prolog bindings to lisp
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (in-package :gambol)
 
-;(export '(*- ?- ??- ?? pl-assert pl-solve-one pl-solve-next pl-solve-rest
-;	  pl-solve-all clear-rules print-rules print-rule *var* molecule
-;	  cut is yes no *tracing* fail))
 
 (setf *print-circle* t)
 (proclaim '(optimize (speed 3)))
@@ -62,8 +50,6 @@
 (defvar *auto-backtrack*      nil "return all solutions if true")
 (defvar *last-continuation*   nil "saved state of the system")
 (defvar *tracing*             nil "if t, tracing is turned on")
-(defvar *debug*               nil "if t, debugging is turned on")
-(defvar *questions*           nil "if t, questions are turned on")
 (defvar *all-continuations*   nil "list of all continuations")
 (defvar *lips*                  0 "logical inferences per second")
 (defvar *trail*               nil "the trail, for backtracking")
@@ -72,8 +58,8 @@
 (defvar *top-level-envs*      nil "saves top-level environments")
 (defvar *top-level-vars*      nil "saves top-level variable names")
 (defvar *num-slots*            -1 "number of logical variables in a query")
-
 (defvar *prolog-rules*  (make-hash-table) "hash table for prolog rule heads")
+
 
 ;; rule selector functions
 (defmacro head (rule)
@@ -211,9 +197,9 @@
   #-PCLS
   (declare (inline unbind-var))
   (loop
-    (if (eq *trail* mark)
-      (return)
-      (unbind-var (pop *trail*)))))
+     (if (eq *trail* mark)
+         (return)
+         (unbind-var (pop *trail*)))))
 
 (defmacro rule-head (molecule)
   `(head (mol-skel ,molecule)))
@@ -237,13 +223,13 @@
 ; Hooks to common lisp.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun lisp-hook? (goal)
-  (and (consp goal) (eq (car goal) 'lisp-always)))
+  (and (consp goal) (eq (car goal) 'lisp)))
 
 (defmacro lisp-hook-mol? (goal)
   `(and (molecule-p ,goal) (lisp-hook? (mol-skel ,goal))))
 
 (defun lisp-query? (goal)
-  (and (consp goal) (eq (car goal) 'lisp)))
+  (and (consp goal) (eq (car goal) 'lop)))
 
 (defmacro lisp-query-mol? (goal)
   `(and (molecule-p ,goal) (lisp-query? (mol-skel ,goal))))
@@ -298,7 +284,7 @@
       values)))
 
 ;; The IS clause - unification on variables returned from calls to Lisp.
-;; The general form is (is ?v1 ... ?vn (lisp (lisp-hook))).
+;; The general form is (is ?v1 ... ?vn (lop (lisp-hook))).
 ;; Binds the ?vi variables to the values returned from (lisp-hook).
 (defmacro is? (goal)
   `(and (molecule-p ,goal) (eq (functor (mol-skel ,goal)) 'is)))
@@ -316,12 +302,12 @@
     ; run the lisp hook function
     (if (lisp-query? hook)
       (setf retvals (get-lisp-hook-values hook env))
-      (error "IS clause must have a Lisp hook (~s)" goal))
+      (error "IS clause must have a LOP hook (~s)" goal))
     ; unify the results with the IS arguments 
     (cond ((member *impossible* retvals)
 	   (setf return-env *impossible*))
           ((< (length retvals) (length vars))
-	   (error "IS: lisp-hook returns too few values (~s)" goal))
+	   (error "IS: LOP returns too few values (~s)" goal))
 	  (t (dolist (var (nreverse vars))
 	       (setf return-env (unify var env (pop retvals) env))
 	       (if (impossible? return-env) (return return-env)))))
@@ -429,26 +415,26 @@
 (defun succeed-trace (goal rule back)
   (declare (ignore back))
   (if *tracing*
-    (progn
-      (format t "Goal:")
-      (pprint (expand-logical-vars (mol-skel goal) (mol-env goal) t))
-      (if rule
-	(if (molecule-p rule)
-	  (progn
-	    (format t "Rule: (*- ")
-	    (pprint (expand-logical-vars (mol-skel rule) (mol-env rule) t)))
-	  (format t "Fact: ~S~%" rule))))))
+      (progn
+        (format t "Goal:")
+        (pprint (expand-logical-vars (mol-skel goal) (mol-env goal) t))
+        (if rule
+            (if (molecule-p rule)
+                (progn
+                  (format t "Rule: (*- ")
+                  (pprint (expand-logical-vars (mol-skel rule) (mol-env rule) t)))
+                (format t "Fact: ~S~%" rule))))))
 
 (defun succeed-continue (goal goals rule level back)
   ;(declare (ignore goal rule))
   (succeed-trace goal rule back)
   ; pop level tags off top of goal stack and adjust level accordingly
   (loop
-    (if (level-tag? (car goals))
-      (progn
-	(decf level)
-	(pop goals))
-      (return)))
+     (if (level-tag? (car goals))
+         (progn
+           (decf level)
+           (pop goals))
+         (return)))
   (pl-search goals level back))
 
 ;; Called when a goal fails to match a rule or fact in the database
@@ -473,16 +459,16 @@
 	  ; goal is a call to unify (=)
 	  ((unify? goal)
 	   (if (impossible? (do-unify goal))
-	     (fail-continue goal back)
-	     (succeed-continue goal (rest goals) nil level back)))
+               (fail-continue goal back)
+               (succeed-continue goal (rest goals) nil level back)))
 	  ; goal is a prolog "cut" clause
 	  ((cut? goal)
 	   (succeed-continue goal (rest goals) nil level (do-cut back level)))
 	  ; goal is an "is" clause
 	  ((is? goal)
 	   (if (impossible? (do-is goal))
-	     (fail-continue goal back)
-	     (succeed-continue goal (rest goals) nil level back)))
+               (fail-continue goal back)
+               (succeed-continue goal (rest goals) nil level back)))
 	  ; goal is a common lisp hook - always succeeds
 	  ((lisp-hook-mol? goal)
 	   (do-lisp-hook goal)
@@ -490,8 +476,8 @@
 	  ; goal is a common lisp query
 	  ((lisp-query-mol? goal)
 	   (if (impossible? (do-lisp-hook goal))
-	     (fail-continue goal back)
-	     (succeed-continue goal (rest goals) nil level back)))
+               (fail-continue goal back)
+               (succeed-continue goal (rest goals) nil level back)))
           ; goal is a variable, check to see if it is bound to a
           ; molecule and if so, try to solve it instead.
           ; RRK -- I am not sure that this is right.  It makes not
@@ -501,8 +487,8 @@
           ((and (molecule-p goal) (var? (mol-skel goal)))
            (let ((var-val (lookup-var (mol-skel goal) (mol-env goal))))
              (if (molecule-p var-val)
-               (pl-search (cons var-val (cdr goals)) level back)
-               (fail-continue goal back))))
+                 (pl-search (cons var-val (cdr goals)) level back)
+                 (fail-continue goal back))))
 	  ; otherwise, goal is a general prolog goal
 	  ((match-rule-head goal goals rules level back)))))
 
@@ -526,20 +512,20 @@
     (if (not (impossible? (unify (goal-body goal) (goal-env goal)
 				 (rule-head (first rules))
 				 (rule-env (first rules)))))
-      (let ((new-goals (new-goals (first rules))))
-	(incf *lips*)
-	(return
-	 (succeed-continue
-	  goal
-	  (nconc new-goals (cons '*level-tag* (rest goals)))
-	  (first rules)
-	  (1+ level)
-	  (make-cont goals		    ; goals
-		     (rest rules)	    ; rules
-		     level		    ; level
-		     back		    ; back
-		     old-trail		    ; trail
-		     nil)))))))		    ; trace
+        (let ((new-goals (new-goals (first rules))))
+          (incf *lips*)
+          (return
+            (succeed-continue
+             goal
+             (nconc new-goals (cons '*level-tag* (rest goals)))
+             (first rules)
+             (1+ level)
+             (make-cont goals		    ; goals
+                        (rest rules)	    ; rules
+                        level		    ; level
+                        back		    ; back
+                        old-trail	    ; trail
+                        nil)))))))	    ; trace
 
 ;; Continue searching with continuation - used to backtrack to a choice
 ;; point and continue executing.
@@ -559,19 +545,19 @@
 ;; goals when a cut operator is executed.
 (defun remove-alternatives (cont level)
   (if cont
-    (make-cont (cont-goals cont)	    ; goals
-	       nil			    ; rules
-	       level			    ; level 
-	       (cont-back cont)		    ; back
-	       (cont-trail cont)	    ; trail
-	       nil)))			    ; trace
+      (make-cont (cont-goals cont)	    ; goals
+                 nil			    ; rules
+                 level			    ; level 
+                 (cont-back cont)	    ; back
+                 (cont-trail cont)	    ; trail
+                 nil)))			    ; trace
 
 ;; Perform a cut operation.
 (defun do-cut (cont level)
   (if cont
-    (if (= (- level 1) (cont-level cont))
-      (remove-alternatives cont level)
-      (do-cut (cont-back cont) level))))
+      (if (= (- level 1) (cont-level cont))
+          (remove-alternatives cont level)
+          (do-cut (cont-back cont) level))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Unification functions.
@@ -589,20 +575,20 @@
 ;; it is simply returned.
 (defun expand-lisp-hooks (term env)
   (if (lisp-query? term)
-    (let ((expanded-form (expand-logical-vars (cadr term) env)))
-      (eval expanded-form))
-    term))
+      (let ((expanded-form (expand-logical-vars (cadr term) env)))
+        (eval expanded-form))
+      term))
 
 ;; Dereference to find ultimate binding of a logical variable in the goal
 ;; environment.
 (defun x-view-var (x env)
   (cond ((var? x)
 	 (if (anon-var? x)
-	   x
-	   (let ((val (lookup-var x env)))
-	     (if (pl-bound? val)
-	       (x-view-var val env)
-	       x))))
+             x
+             (let ((val (lookup-var x env)))
+               (if (pl-bound? val)
+                   (x-view-var val env)
+                   x))))
 	((molecule-p x)
 	 (x-view-var (mol-skel x) (setq *x-env* (mol-env x))))
 	(t x)))
@@ -610,11 +596,11 @@
 (defun y-view-var (y env)
   (cond ((var? y)
 	 (if (anon-var? y)
-	   y
-	   (let ((val (lookup-var y env)))
-	     (if (pl-bound? val)
-	       (y-view-var val env)
-	       y))))
+             y
+             (let ((val (lookup-var y env)))
+               (if (pl-bound? val)
+                   (y-view-var val env)
+                   y))))
 	((molecule-p y)
 	 (y-view-var (mol-skel y) (setq *y-env* (mol-env y))))
 	(t y)))
@@ -646,11 +632,11 @@
         ((let ((x-env *x-env*)
 	       (y-env *y-env*))
 	   (if (impossible? (unify1 (car x) (car y)))
-	     *impossible*
-	     (progn
-	       (setf *x-env* x-env)
-	       (setf *y-env* y-env)
-	       (unify1 (cdr x) (cdr y))))))))
+               *impossible*
+               (progn
+                 (setf *x-env* x-env)
+                 (setf *y-env* y-env)
+                 (unify1 (cdr x) (cdr y))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Success and failure display functions.
@@ -665,17 +651,17 @@
   ; query the user if more
   (if (or *auto-backtrack* (and *interactive* (y-or-n-p "More? ")))
     ; force failure to get more solutions
-    (let* ((save-binding-list
-            (build-binding-list *top-level-vars* *top-level-envs*))
-           (ans (continue-on back)))
-      (if (impossible? ans)
-        (if *interactive* 
-          ans
-          (list save-binding-list))
-        (append (list save-binding-list)
-		ans)))
-    (if (not *interactive*) 
-      (build-binding-list *top-level-vars* *top-level-envs*))))
+      (let* ((save-binding-list
+              (build-binding-list *top-level-vars* *top-level-envs*))
+             (ans (continue-on back)))
+        (if (impossible? ans)
+            (if *interactive* 
+                ans
+                (list save-binding-list))
+            (append (list save-binding-list)
+                    ans)))
+      (if (not *interactive*) 
+          (build-binding-list *top-level-vars* *top-level-envs*))))
 
 ;; Build a list of the bindings.
 (defun build-binding-list (vars env)
@@ -715,18 +701,18 @@
 (defun calcify (form alist)
   (cond ((null form) nil)
 	((symbolp form)
-	  (if (var-name? form)
-	    (if (anon-var-name? form)
-	      '(*var* ?? -1)
-	      (let ((slot (assoc form (car alist))))
-		(if (not slot)
-		  (let ((nv `(,form . (*var* ,form ,(incf *num-slots*)))))
-		    ; destructively modify alist
-		    (push nv (car alist))
-		    (setf slot nv)))
-		; return new rep for var
-		(cdr slot)))
-	    form))
+         (if (var-name? form)
+             (if (anon-var-name? form)
+                 '(*var* ?? -1)
+                 (let ((slot (assoc form (car alist))))
+                   (if (not slot)
+                       (let ((nv `(,form . (*var* ,form ,(incf *num-slots*)))))
+                         ; destructively modify alist
+                         (push nv (car alist))
+                         (setf slot nv)))
+		   ; return new rep for var
+                   (cdr slot)))
+             form))
 	((stringp form) form)
 	((vectorp form)
 	 (dotimes (i (length form) form)
@@ -787,6 +773,16 @@
   (setf *auto-backtrack* t)
   (filter-no (pl-solve goals)))
 
+;;; (do-solve-all (?who) '((mortal ?who))
+;;;   (print ?who))
+(defmacro do-solve-all ((&rest vars) goals &body body)
+  (let* ((env (gensym "ENV"))
+         (binding-list (loop for var in vars
+                             collecting (list var `(cdr (assoc ',var ,env))))))
+    `(dolist (,env (pl-solve-all ,goals))
+       (let ,binding-list
+         ,@body))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; User interaction.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -830,21 +826,21 @@
 ;; Remove all rules from the database.
 (defun clear-rules (&optional (functors nil))
   (if functors
-    (dolist (functor functors)
-      (remove-prolog-rules functor))
-    ; clear rule index
-    (remove-all-prolog-rules))
+      (dolist (functor functors)
+        (remove-prolog-rules functor))
+      ; clear rule index
+      (remove-all-prolog-rules))
   t)
 
 ;; Print all rules, or rules with the given principal functor.
 (defun print-rules (&optional (functors nil))
   (if (null functors)
-    (maphash #'(lambda (key value)
-		 (declare (ignore value))
-		 (print-rule key))
-	     *prolog-rules*)
-    (dolist (functor functors)
-      (print-rule functor))))
+      (maphash #'(lambda (key value)
+                   (declare (ignore value))
+                   (print-rule key))
+               *prolog-rules*)
+      (dolist (functor functors)
+        (print-rule functor))))
 
 (defun print-rule (functor)
   (let ((rules (get-prolog-rules functor)))
@@ -858,12 +854,12 @@
   (let ((head (head rule))
 	(body (body rule)))
     (if body
-      (progn
-       (format t "  (*- ~s" (filter-vars head))
-       (dolist (form body)
-         (format t "~%~6t~s" (filter-vars form)))
-       (format t ")~%"))
-      (format t "  (*- ~s)~%" (filter-vars head)))))
+        (progn
+          (format t "  (*- ~s" (filter-vars head))
+          (dolist (form body)
+            (format t "~%~6t~s" (filter-vars form)))
+          (format t ")~%"))
+        (format t "  (*- ~s)~%" (filter-vars head)))))
 
 ;; Change (*var* ?x 0) to ?x for rule printing.
 (defun filter-vars (exp)
@@ -885,10 +881,8 @@
 	   (rule (cdr event)))
       (format t "Goal: ~S~%" (car event))
       (if rule
-	(if (listp rule)
-	  (format t "Rule: ~S~%" `(*- ,@rule))
-	  (format t "Fact: ~S~%" rule))))))
+          (if (listp rule)
+              (format t "Rule: ~S~%" `(*- ,@rule))
+              (format t "Fact: ~S~%" rule))))))
 
-(provide "prolog")
-
-;; End of file.
+;; end of prolog.lisp
