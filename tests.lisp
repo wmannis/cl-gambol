@@ -88,8 +88,6 @@
      (*- (not ?p))
      (pl-solve-all '((not (member 5 (1 2 3 4 5))))))))
 
-
-
 (addtest (gambol-tests)
   lop
   (ensure-same
@@ -100,8 +98,12 @@
          (length ?t ?n1)
          (is ?n (lop (1+ ?n1))))
      (get-unified-value '?l (pl-solve-all '((length (a b c 1 2 3) ?l)))))))
-     
 
+;;; Work in a test to verify that IS caputres multiple values correctly.
+;;; Silly, but works:
+(*- (values-test ?a ?b ?l)
+    (is ?a ?b (lop (apply values ?l))))     
+(??- (values-test ?a ?b (1 2)))
 
 ;;; Quicksort, translated from lips-test.l
 (addtest (gambol-tests)
