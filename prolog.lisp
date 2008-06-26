@@ -270,17 +270,19 @@
   (let* ((skel (mol-skel molecule))
 	 (env (mol-env molecule))
 	 (expanded-form (expand-logical-vars (cadr skel) env)))
-    (if (null (eval expanded-form))
+    (if (null (apply (symbol-function (first expanded-form))
+                     (rest expanded-form)))
       *impossible*
       t)))
 
 (defun get-lisp-hook-values (hook env)
-  (let ((expanded-form (expand-logical-vars (cadr hook) env))
-	(values nil))
-    (setf values (multiple-value-list (eval expanded-form)))
+  (let* ((expanded-form (expand-logical-vars (cadr hook) env))
+         (values (multiple-value-list
+                  (apply (symbol-function (first expanded-form))
+                         (rest expanded-form)))))
     (if (member *impossible* values)
-      *impossible*
-      values)))
+        *impossible*
+        values)))
 
 ;; The IS clause - unification on variables returned from calls to Lisp.
 ;; The general form is (is ?v1 ... ?vn (lop (lisp-hook))).
@@ -574,7 +576,7 @@
 (defun expand-lisp-hooks (term env)
   (if (lisp-query? term)
       (let ((expanded-form (expand-logical-vars (cadr term) env)))
-        (eval expanded-form))
+        (apply (symbol-function (first expanded-form)) (rest expanded-form)))
       term))
 
 ;; Dereference to find ultimate binding of a logical variable in the goal
