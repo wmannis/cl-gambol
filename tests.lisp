@@ -15,15 +15,35 @@
   "yank the value of a logical variable out of a SOLVE'd environment"
   (cdr (assoc item (car environment))))
 
+(defun get-unified-values (items environment)
+  (mapcar #'(lambda (item) (get-unified-value item environment)) items))
+
 
 ;;; Let's start with basic list manipulations.
 (addtest (gambol-tests)
-  head
+  head-1
   (ensure-same
    'A
    (progn
      (*- (head ?h (?h . ??)))
      (get-unified-value '?h (pl-solve-all '((head ?h (a b c))))))))
+
+(addtest (gambol-tests)
+  head-2
+  (ensure-same
+   '(A B)
+   (progn
+     (*- (head ?h (?h . ??)))
+     (get-unified-value '?h (pl-solve-all '((head ?h ((a b) c))))))))
+
+(addtest (gambol-tests)
+  head-3
+  (ensure-same
+   '(A B)
+   (progn
+     (*- (head ?h (?h . ??)))
+     (get-unified-values '(?h1 ?h2)
+                         (pl-solve-all '((head (?h1 ?h2) ((a b) c d))))))))
 
 (addtest (gambol-tests)
   tail
@@ -44,7 +64,7 @@
      (pl-solve-all '((member 3 (1 2 3 4 5)))))))
 
 (addtest (gambol-tests)
-  member-1
+  append-1
   (ensure-same
    '(a b c d)
    (progn
@@ -54,7 +74,7 @@
      (get-unified-value '?a (pl-solve-all '((append (a b) (c d) ?a)))))))
 
 (addtest (gambol-tests)
-  member-2
+  append-2
   (ensure-same
    '(c d)
    (progn
@@ -74,6 +94,7 @@
  '((reverse (1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0) ?x)))
 
 
+;;; Negation as Failure is weird.
 (addtest (gambol-tests)
   closed-world
   (ensure-null
@@ -88,6 +109,7 @@
      (*- (not ?p))
      (pl-solve-all '((not (member 5 (1 2 3 4 5))))))))
 
+;;; Yanking values from Lisp.
 (addtest (gambol-tests)
   lop
   (ensure-same
@@ -99,11 +121,15 @@
          (is ?n (lop (1+ ?n1))))
      (get-unified-value '?l (pl-solve-all '((length (a b c 1 2 3) ?l)))))))
 
-;;; Work in a test to verify that IS caputres multiple values correctly.
-;;; Silly, but works:
-(*- (values-test ?a ?b ?l)
-    (is ?a ?b (lop (apply values ?l))))     
-(??- (values-test ?a ?b (1 2)))
+;;; Make sure IS handles multiple values correctly.
+(addtest (gambol-tests)
+  multiple-value-is
+  (ensure-same
+   '(1 2)
+   (progn
+     (*- (values-test ?a ?b ?l)
+         (is ?a ?b (lop (apply values ?l))))
+     (get-unified-values '(?a ?b) (pl-solve-all '((values-test ?a ?b (1 2))))))))
 
 ;;; Quicksort, translated from lips-test.l
 (addtest (gambol-tests)
