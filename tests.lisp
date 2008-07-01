@@ -85,14 +85,19 @@
 
 ;;; More fun to verify: (pl-solve-all '((append ?a ?b (a b c d))))
 
-(*- (reverse (?x . ?xs) ?zs)
-    (reverse ?xs ?ys)
-    (append ?ys (?x) ?zs))
-(*- (reverse nil nil))
-
-(pl-solve-all
- '((reverse (1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0) ?x)))
-
+(addtest (gambol-tests)
+  append-3-reverse
+  (ensure-same
+   '(19 5 24 21 21 11 0 5 6 3 3 0 20 19 15 8)
+   (progn
+     (*- (append (?x . ?xs) ?ys (?x . ?zs))
+         (append ?xs ?ys ?zs))
+     (*- (append nil ?ys ?ys))
+     (*- (reverse (?x . ?xs) ?zs)
+         (reverse ?xs ?ys)
+         (append ?ys (?x) ?zs))
+     (*- (reverse nil nil))
+     (get-unified-value '?a (pl-solve-all '((reverse (8 15 19 20 0 3 3 6 5 0 11 21 21 24 5 19) ?a)))))))
 
 ;;; Negation as Failure is weird.
 (addtest (gambol-tests)
