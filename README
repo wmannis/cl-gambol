@@ -19,19 +19,20 @@ replaced them with what look like predicates, LOP (Lisp OPerator) and
 LISP.  I don't like monkeying with the read-table without a very good
 reason, and this trivial sugaring seemed excessive.
 
+For documentation and examples, please see the software web site,
+http://cl-gambol.googlecode.com/
+
 
 
                               COPYRIGHT
 
 This is a modification of the Frolic[1] system which can be found at
-the CMU AI Repository.  Under the terms of inclusion in the
-Repository, one is permitted to copy, distribute and prepare
-derivative works of Repository software[2].  My own largely trivial
-modifications to the system are released under the MIT license. 
+the CMU AI Repository.  That software is under a BSD copyright
+(personal communication with one of the original authors).  My own
+largely trivial modifications to the system are released under the MIT
+license.
 
 [1] http://www.cs.cmu.edu/afs/cs.cmu.edu/project/ai-repository/ai/lang/prolog/impl/prolog/frolic/
-[2] http://www.cs.cmu.edu/afs/cs.cmu.edu/project/ai-repository/ai/readme.txt
-
 
 
 Copyright (c) 2008 William S. Annis.  All rights reserved.
