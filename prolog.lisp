@@ -416,7 +416,7 @@
   (declare (ignore back))
   (if *tracing*
       (progn
-        (format t "Goal:")
+        (format t "Goal: ")
         (pprint (expand-logical-vars (mol-skel goal) (mol-env goal) t))
         (if rule
             (if (molecule-p rule)
