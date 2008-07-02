@@ -1,0 +1,9 @@
+#summary what I changed to turn Frolic into Gambol
+
+ * Logical variables were converted from `_var` to `?var` (a more common representation).
+ * The `^` read macro was yanked, and replaced with predicate operators, `LOP` and `LISP`.
+ * The operation of `LOP` and `LISP` was switched from using `EVAL` to using `APPLY`.  This somewhat restricts how these can be used, but I don't think that's really a problem.
+ * The "I don't care" variable is `??` instead of `__`.  I might yet change this to just `?` which is somewhat common.
+ * Several unused global variables were removed, including the state storage which would have allowed the `HOW` function to explain how a solution was reached.  It looks like that was never completed.
+ * The code exhibits a preoccupation with performance, which often takes the form of macros where functions would do just as well.  You can't trace macros, so I converted some of these back to normal functions.
+ * I added a macro to iterate over solutions from `PL-SOLVE-ALL`, `DO-SOLVE-ALL`.
