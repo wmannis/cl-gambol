@@ -83,8 +83,6 @@
      (*- (append nil ?ys ?ys))
      (get-unified-value '?a (pl-solve-all '((append (a b) ?a (a b c d))))))))
 
-;;; More fun to verify: (pl-solve-all '((append ?a ?b (a b c d))))
-
 (addtest (gambol-tests)
   append-3-reverse
   (ensure-same

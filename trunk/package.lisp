@@ -47,6 +47,7 @@
            #:yes
            #:no
            #:fail
-           #:*lips*))
+           #:*lips*
+           #:*tracing*))
 
 ;;; package.lisp ends here
