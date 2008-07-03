@@ -32,9 +32,9 @@ Where the _b,,n,,_ terms are called the _body_ of the rule.  Within rules (and f
 (*- (mortal ?x) (human ?x))
 }}}
 
-If you don't care about the term in a particular rule you can use *`??`* as a special placeholder variable.
-
 Notice that a fact is just a degenerate sort of rule which is always true.
+
+If you don't care about the term in a particular rule you can use *`??`* as a special placeholder variable.
 
 *Procedures* are collections of rule which all have the same predicate:
 
