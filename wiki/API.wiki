@@ -51,7 +51,7 @@ Notice that a fact is just a degenerate sort of rule which is always true.
 
 Notice that the Gambol unifier understands Lisp lists.  Where Prolog uses *`|`* to separate the head from the rest of the list, Gambol uses the usual Lispy dotted-pair notation.
 
-Interactive queries are called with one of the *`?-`* or *`??-`* macros.  *`?-`* will present one answer after the other, asking you if you wish to continue after each.  *`??-`* will find all solutions immediately.
+Interactive *queries* are called with one of the *`?-`* or *`??-`* macros.  *`?-`* will present one answer after the other, asking you if you wish to continue after each.  *`??-`* will find all solutions immediately.
 
 None of the macros presented so far gives you a way to pass Lisp values into the database of facts and rules.  See the API section below for function calls to interact with the database.
 
