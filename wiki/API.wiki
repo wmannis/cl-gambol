@@ -36,7 +36,7 @@ Notice that a fact is just a degenerate sort of rule which is always true.
 
 If you don't care about the term in a particular rule you can use *`??`* as a special placeholder variable.
 
-*Procedures* are collections of rule which all have the same predicate:
+*Procedures* are collections of rules which all have the same predicate:
 
 {{{
 (*- (append (?x . ?xs) ?ys (?x . ?zs))
