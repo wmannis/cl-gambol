@@ -8,3 +8,5 @@
  * Several unused global variables were removed, including the state storage which would have allowed the `HOW` function to explain how a solution was reached.  It looks like that was never completed.
  * The code exhibits a preoccupation with performance, which often takes the form of macros where functions would do just as well.  You can't trace macros, so I converted some of these back to normal functions.
  * I added a macro to iterate over solutions from `PL-SOLVE-ALL`, `DO-SOLVE-ALL`.
+
+I contacted one of the authors to verify the licensing — "we always operated under the BSD license ideas."  My trivial modifications are under MIT out of habit.  Since these two license schemes are kissing cousins, I doubt this is really a problem.
