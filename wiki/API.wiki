@@ -8,11 +8,6 @@ The package name is *`:gambol`*.  There are no nicknames.
 
 It depends on no other libraries.
 
-== Conditions and Restarts ==
-
-None. 
-
-_I need to comb through looking for error calls._
 
 == Logic Programming ==
 
