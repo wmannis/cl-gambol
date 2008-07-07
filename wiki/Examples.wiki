@@ -1,9 +1,18 @@
 #summary common Prolog examples gambolized
 
-Just some things to try out:
+=== Sum all the Numbers in a List ===
 
 {{{
-;;; Towers of Hanoi
+(*- (sumlist () 0))
+(*- (sumlist (?head . ?tail) ?n)
+    (sumlist ?tail ?n1)
+    (is ?n (lop (+ ?n1 ?head))))
+(?- (sumlist (1 2 3 4 5) ?n))
+}}}
+
+=== Towers of Hanoi ===
+
+{{{
 (*- (move 1 ?x ?y ??)
     (lisp (format t "Move top disk from ~A to ~A.~%" '?x '?y)))
 (*- (move ?n ?x ?y ?z)
