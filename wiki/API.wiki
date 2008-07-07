@@ -87,7 +87,7 @@ GAMBOL> (??- (1- 3 ?result))
 *`(lop (lisp-expression))`*
  allows Gambol to invoke arbitrary Lisp functions.  Any logical variables in the expression will be correctly
  substituted before the function is evaluated.  Note that the lisp expression _must_ be an applyable function,
- not macros or special forms.  If the lisp expression returns non-nil the term is counted as a success.
+ not a macro or special form.  If the lisp expression returns non-nil the term is counted as a success.
 
 {{{
 GAMBOL> (*- (greater-than ?x ?y) (lop (> ?x ?y)))
