@@ -23,3 +23,20 @@
     (move ?m ?z ?y ?x))
 (?- (move 3 left right center))
 }}}
+
+=== Blow your Stack: Fibonacci Numbers ===
+
+A naive implementation —
+
+{{{
+(*- (fib 0 1))
+(*- (fib 1 1))
+(*- (fib ?n ?f)
+    (lop (> ?n 1))
+    (is ?n1 (lop (1- ?n)))
+    (is ?n2 (lop (- ?n 2)))
+    (fib ?n1 ?f1)
+    (fib ?n2 ?f2)
+    (is ?f (lop (+ ?f1 ?f2))))
+(?- (fib 10 ?f))
+}}}
