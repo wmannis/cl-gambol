@@ -51,6 +51,7 @@ This one adds a new fact to the database for each new integer for which it finds
 
 (*- (is-fib 0 1))
 (*- (is-fib 1 1))
+
 (*- (fib ?n ?f)
     (is-fib ?n ?f)
     (cut))
