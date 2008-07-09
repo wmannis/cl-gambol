@@ -32,6 +32,8 @@
            #:??-
            #:??
            #:pl-assert
+           #:pl-asserta
+           #:pl-retract
            #:pl-solve-one
            #:pl-solve-next
            #:pl-solve-rest

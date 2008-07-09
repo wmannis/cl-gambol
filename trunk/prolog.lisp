@@ -362,11 +362,23 @@
     (if (symbolp func)
       (add-rule-to-index skeleton func num-vars))))
 
+(defun push-rule (skeleton num-vars)
+  (let ((func (principal-functor skeleton)))
+    (if (symbolp func)
+      (push-rule-to-index skeleton func num-vars))))
+
 ;; Add a rule to prolog.  Each skeleton is paired with the number of
 ;; variables in its environment, so new environments can be built easily.
 (defun add-rule-to-index (skeleton functor num-vars)
+  "add a rule to the end of the database for the functor"
   (put-prolog-rules functor (append (get-prolog-rules functor)
 				    (list (cons skeleton num-vars))))
+  skeleton)
+
+(defun push-rule-to-index (skeleton functor num-vars)
+  "add a rule to the beginning of the database for the functor"
+  (put-prolog-rules functor (cons (cons skeleton num-vars)
+                                  (get-prolog-rules functor)))
   skeleton)
 
 (defun rule-part (rule-pair) (car rule-pair))
@@ -731,10 +743,18 @@
 ;; variable is converted to a pointer into the environment.
 ;; Calcify returns the environment structure created for the rule.
 (defun pl-assert (rule)
+  "add a rule to the end of the database for this functor"
   (let ((env (list nil)))
-    (setf *num-slots* -1)
-    (index-rule (calcify rule env) (1+ *num-slots*))
-    rule))
+    (let ((*num-slots* -1))
+      (index-rule (calcify rule env) (1+ *num-slots*))
+      rule)))
+
+(defun pl-asserta (rule)
+  "add a rule to the beginning of the database for this functor"
+  (let ((env (list nil)))
+    (let ((*num-slots* -1))
+      (push-rule (calcify rule env) (1+ *num-slots*))
+      rule)))
 
 ;; Makes sure lisp gets nil on failure instead of *impossible*.
 (defmacro filter-no (value)
@@ -769,9 +789,9 @@
 ;; environments (env env ...) where each environment is a
 ;; ((var . binding)...) alist.
 (defun pl-solve-all (goals)
-  (setf *interactive* nil)
-  (setf *auto-backtrack* t)
-  (filter-no (pl-solve goals)))
+  (let ((*interactive* nil)
+        (*auto-backtrack* t))
+    (filter-no (pl-solve goals))))
 
 ;;; (do-solve-all (?who) '((mortal ?who))
 ;;;   (print ?who))
@@ -782,6 +802,54 @@
     `(dolist (,env (pl-solve-all ,goals))
        (let ,binding-list
          ,@body))))
+
+;;; "I didn't mean that."  The next three functions handle the delicate
+;;; matter of rule retraction.  It is at least as robust as some commercial
+;;; prologs, in that this doesn't fiddle with any facts currently in the
+;;; backtracking chain.  It's not smart enough to retract rules, only facts.
+
+;;; Take the results of PL-SOLVE-ONE and produce a version of the query
+;;; filling in the logical variables with the association list.
+(defun subst-alist (alist tree &key (test #'eql))
+  (let ((new-tree tree))
+    (loop for (old . new) in alist
+          do (setf new-tree (subst new old new-tree :test test))
+          finally (return new-tree))))
+
+(defun retract-rule (rule)
+  ;; rules can be: ((mortal ?x) (human ?x)) but also (fred-exists)
+  (let* ((functor (if (atom (first rule))
+                      (first rule)
+                      (caar rule)))
+         (functor-rules (get-prolog-rules functor)))
+    ;; make variables look good and yank out arity data to help REMOVE-IF
+    (labels ((rule-filter (rule)
+               (first (filter-vars rule))))
+      (when functor-rules
+        (put-prolog-rules functor (remove-if #'(lambda (r) (equalp r rule))
+                                             functor-rules
+                                             :key #'rule-filter))))))
+
+(defun pl-retract (goals)
+  ;; Paranoia - since retraction will run during on-going solution searches,
+  ;; we have to protect all the specials involved in that search so we can
+  ;; do a new search for the rule to retract.
+  (let* ((*interactive* nil)
+         (*auto-backtrack* nil)
+         (*last-continuation* nil)
+         (*trail* nil)
+         (*x-env* nil)
+         (*y-env* nil)
+         (*top-level-envs* nil)
+         (*top-level-vars* nil)
+         (claus (filter-no (pl-solve goals))))
+    (cond ((null clause) nil)  ; no match
+          ((eq clause t)       ; literal match
+           (retract-rule goals)
+           t)
+          ((listp clause)      ; unified match
+           (retract-rule (subst-alist clause goals))
+           t))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; User interaction.
