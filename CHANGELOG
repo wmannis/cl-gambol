@@ -1,0 +1,7 @@
+0.02 - ???
+  * added PL-RETRACT, and associated helpers
+  * added PL-ASSERTA to insert new rules in the database at the
+    beginning of the list for the functor
+
+0.01 - July 3 2008
+  * initial release
