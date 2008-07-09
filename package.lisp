@@ -44,6 +44,9 @@
            #:print-rule
            #:cut
            #:is
+           #:asserta
+           #:assertz
+           #:retract
            #:lop
            #:lisp
            #:yes
