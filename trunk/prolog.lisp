@@ -422,6 +422,7 @@
   (search-rules goals
     (get-rule-molecules (goal-functor (first goals))) level back))
 
+
 ;; Called when a goal successfully matched a rule or fact in the database
 ;; (used for I/O and debugging).
 (defun succeed-trace (goal rule back)
@@ -462,6 +463,17 @@
   `(progn (fail-trace ,goal)
           (continue-on ,back)))
 
+;;; Helpers for SEARCH-RULES:
+(defmacro asserta? (goal)
+  `(and (molecule-p ,goal) (eql (functor (mol-skel ,goal)) 'asserta)))
+
+(defun assertz? (goal)
+  (and (molecule-p goal) (eql (functor (mol-skel goal)) 'assertz)))
+
+(defmacro retract? (goal)
+  `(and (molecule-p ,goal) (eql (functor (mol-skel ,goal)) 'retract)))
+
+
 ;; Attempt to match a goal against rules in the database.
 (defun search-rules (goals rules level back)
   #-PCLS
@@ -479,6 +491,24 @@
 	  ; goal is an "is" clause
 	  ((is? goal)
 	   (if (impossible? (do-is goal))
+               (fail-continue goal back)
+               (succeed-continue goal (rest goals) nil level back)))
+          ;; adding new data to the database - always succeeds
+          ((asserta? goal)
+           (pl-asserta (expand-logical-vars
+                        (second (mol-skel goal))
+                        (mol-env goal)))
+           (succeed-continue goal (rest goals) nil level back))
+          ((assertz? goal)
+           (pl-assert (expand-logical-vars
+                       (second (mol-skel goal))
+                       (mol-env goal)))
+           (succeed-continue goal (rest goals) nil level back))
+          ;; Retract succeeds if it finds something to yank out.
+          ((retract? goal)
+           (if (not (pl-retract (list (expand-logical-vars
+                                       (second (mol-skel goal))
+                                       (mol-env goal)))))
                (fail-continue goal back)
                (succeed-continue goal (rest goals) nil level back)))
 	  ; goal is a common lisp hook - always succeeds
@@ -842,7 +872,7 @@
          (*y-env* nil)
          (*top-level-envs* nil)
          (*top-level-vars* nil)
-         (claus (filter-no (pl-solve goals))))
+         (clause (filter-no (pl-solve goals))))
     (cond ((null clause) nil)  ; no match
           ((eq clause t)       ; literal match
            (retract-rule goals)
