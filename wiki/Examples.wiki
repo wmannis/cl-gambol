@@ -49,9 +49,6 @@ A naive implementation —
 This one adds a new fact to the database for each new integer for which it finds the fibonacci number.
 
 {{{
-(*- (assert ?p)
-    (lisp (pl-assert ?p)))
-
 (*- (is-fib 0 1))
 (*- (is-fib 1 1))
 
@@ -64,5 +61,5 @@ This one adds a new fact to the database for each new integer for which it finds
     (fib ?n1 ?f1)
     (fib ?n2 ?f2)
     (is ?f (lop (+ ?f1 ?f2)))
-    (assert ((is-fib ?n ?f))))
+    (assertz ((is-fib ?n ?f))))
 }}}
