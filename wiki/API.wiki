@@ -1,6 +1,6 @@
 #summary using Gambol
 
-Gambol is basic logic programming system written in pure Lisp, using Lisp-like syntax.  Most of it will seem familiar to people who know Prolog, but apart from core functionality it is nowhere near a complete system — i.e., it doesn't provide the mass of built-in operations and predicates of an ISO-compliant Prolog.
+Gambol is basic logic programming system written in pure Lisp, using Lisp-like syntax.  Most of it will seem familiar to people who know Prolog, but apart from core functionality it is nowhere near a complete system — i.e., it doesn't provide the mass of built-in operations and predicates of an ISO-compliant Prolog, nor are the semantics for some operations identical.
 
 Gambol is heavy conser at the moment.
 
