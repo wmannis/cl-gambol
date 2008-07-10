@@ -180,5 +180,41 @@
          (is ?f (lop (* ?n ?f1))))
      (get-unified-value '?f (pl-solve-all '((factorial 33 ?f)))))))
 
+(addtest (gambol-tests)
+  assertz
+  (ensure-same
+   '(0 1)
+   (progn
+     (*- (add ?p)
+         ?p
+         (cut))
+     (*- (add ?p)
+         (assertz ?p))
+     (??- (add (fibonacci 0 1)))
+     (get-unified-values '(?n ?f) (pl-solve-all '((fibonacci ?n ?f)))))))
+
+(addtest (gambol-tests)
+  asserta
+  (ensure-same
+   '(glad bags)
+   (progn
+     (*- (add ?p)
+         ?p
+         (cut))
+     (*- (add ?p)
+         (asserta ?p))
+     (*- (fibonacci 0 1))
+     (*- (fibonacci 1 1))
+     (??- (add (fibonacci glad bags)))
+     (get-unified-values '(?n ?f) (pl-solve-all '((fibonacci ?n ?f)))))))
+
+(addtest (gambol-tests)
+  retract
+  (ensure-null
+   (progn
+     (*- (fibonacci 0 1))
+     (*- (fibonacci 1 1))
+     (??- (retract (fibonacci 0 1)))
+     (pl-solve-one '((fibonacci 0 1))))))
 
 ;;; tests.lisp ends here
