@@ -1,4 +1,4 @@
-0.02 - ???
+0.02 - July 10 2008
   * clean-up of the package exports, by way of using STRING= on the
     Gambol operator tests instead of EQ*, which is picky about packages
   * made FAIL part of SEARCH-RULES, so you can't accidentally make it
@@ -6,6 +6,8 @@
   * added PL-RETRACT, and associated helpers
   * added PL-ASSERTA to insert new rules in the database at the
     beginning of the list for the functor
+  * added more operations to gambol, to match the new functions,
+    asserta, assertz (like their Prolog counterparts) and retract
 
 0.01 - July 3 2008
   * initial release
