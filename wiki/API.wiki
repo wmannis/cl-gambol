@@ -71,6 +71,26 @@ None of the macros presented so far gives you a way to pass Lisp values into the
 *`(= ?x ?x)`*
  Performs unification.
 
+*`(asserta ?p)`*
+ Adds a new fact to the _head_ of the database.  `pl-asserta` is the function equivalent.  Always succeeds.
+
+*`(assertz ?p)`*
+ Adds a new fact to the _end_ of the database, as though via the *`*-`* macro `pl-assert`.  These three
+ Lisp expressions will accomplish the same thing:
+
+{{{
+(*- (fibonacci 0 1))
+(?- (assert (fibonacci 0 1)))
+(pl-assert '((fibonacci 0 1)))
+}}}
+
+ Always succeeds.
+
+*`(retract ?p)`*
+ removes a _fact_ from the database.  It is not currently smart enough to remove rules.  It will retract a fact that
+ matches perfectly, or, if logical variables are in the expression, the _first_ solution found.  If it finds a fact to
+ remove, it succeeds.  If it finds nothing, it fails.
+
 *`(is`* _`logical-variable(s) (lop (lisp-expression))`_*`)`*
  binds one or more logical variables to the result of a lisp expression:
 
@@ -127,7 +147,7 @@ _special variable_
 
 _macro_
 *`*-`* _`rule`_
- adds new rules and facts to the database.
+ adds new rules and facts to the database.  They are inserted in the order they arrive.
 
 _macro_
 *`?-`* _`goal`_
@@ -143,8 +163,22 @@ _function_
  in mind that a fact is a rule missing a body.  This results in extra list embedding:
 
 {{{
-(pl-assert '((mortal socrates)))    ; same as:  (*- (mortal socrates))
+(pl-assert '((mortal socrates)))         ; same as: (*- (mortal socrates))
 (pl-assert '((mortal ?x) (human ?x)))    ; same as: (*- (mortal ?x) (human ?x))
+}}}
+
+_function_
+*`pl-asserta`* _`rule`_
+ adds a new rule to the database.  If the predicate already exists the new rule goes at the _head_ of the list
+ of rules for that predicate.
+
+_function_
+*`pl-retract`* _`rule`_
+ removes a fact from the database.  The fact may be literal or contain logical variables.  In all cases, it only removes
+ the first matching fact it finds.  Like `pl-assert`, take care with the list form:
+
+{{{
+(pl-retract '((mortal socrates)))
 }}}
 
 _function_
