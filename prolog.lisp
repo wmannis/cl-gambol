@@ -853,24 +853,24 @@
           do (setf new-tree (subst new old new-tree :test test))
           finally (return new-tree))))
 
-(defun retract-rule (rule)
-  ;; rules can be: ((mortal ?x) (human ?x)) but also (fred-exists)
-  (let* ((functor (if (atom (first rule))
-                      (first rule)
-                      (caar rule)))
+(defun retract-fact (fact)
+  ;; facts can be: ((mortal ?x)) but also (fred-exists)
+  (let* ((functor (if (atom (first fact))
+                      (first fact)
+                      (caar fact)))
          (functor-rules (get-prolog-rules functor)))
     ;; make variables look good and yank out arity data to help REMOVE-IF
     (labels ((rule-filter (rule)
                (first (filter-vars rule))))
       (when functor-rules
-        (put-prolog-rules functor (remove-if #'(lambda (r) (equalp r rule))
+        (put-prolog-rules functor (remove-if #'(lambda (r) (equalp r fact))
                                              functor-rules
                                              :key #'rule-filter))))))
 
 (defun pl-retract (goals)
   ;; Paranoia - since retraction will run during on-going solution searches,
-  ;; we have to protect all the specials involved in that search so we can
-  ;; do a new search for the rule to retract.
+  ;; we have to protect all the specials involved in that search while we do
+  ;; a new search for the rule to retract.
   (let* ((*interactive* nil)
          (*auto-backtrack* nil)
          (*last-continuation* nil)
@@ -882,10 +882,10 @@
          (clause (filter-no (pl-solve goals))))
     (cond ((null clause) nil)  ; no match
           ((eq clause t)       ; literal match
-           (retract-rule goals)
+           (retract-fact goals)
            t)
           ((listp clause)      ; unified match
-           (retract-rule (subst-alist clause goals))
+           (retract-fact (subst-alist clause goals))
            t))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
