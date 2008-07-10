@@ -497,14 +497,14 @@
                (succeed-continue goal (rest goals) nil level back)))
           ;; adding new data to the database - always succeeds
           ((asserta? goal)
-           (pl-asserta (expand-logical-vars
-                        (second (mol-skel goal))
-                        (mol-env goal)))
+           (pl-asserta (list (expand-logical-vars
+                              (second (mol-skel goal))
+                              (mol-env goal))))
            (succeed-continue goal (rest goals) nil level back))
           ((assertz? goal)
-           (pl-assert (expand-logical-vars
-                       (second (mol-skel goal))
-                       (mol-env goal)))
+           (pl-assert (list (expand-logical-vars
+                             (second (mol-skel goal))
+                             (mol-env goal))))
            (succeed-continue goal (rest goals) nil level back))
           ;; Retract succeeds if it finds something to yank out.
           ((retract? goal)
