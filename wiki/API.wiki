@@ -10,6 +10,8 @@ The package name is *`:gambol`*.  There are no nicknames.
 
 It depends on no other libraries.
 
+Note that because Gambol is just working with ordinary Lisp symbols most of the time you have to keep in mind what package you define facts and rules in.  Except for core operators (`is`, `assertz`, etc.) you'll have to state the package on terms if you define rules in a different package from where you'll be querying the database.
+
 
 == Logic Programming ==
 
