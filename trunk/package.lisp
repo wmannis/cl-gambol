@@ -42,16 +42,8 @@
            #:clear-rules
            #:print-rules
            #:print-rule
-           #:cut
-           #:is
-           #:asserta
-           #:assertz
-           #:retract
-           #:lop
-           #:lisp
            #:yes
            #:no
-           #:fail
            #:*lips*
            #:*tracing*))
 

@@ -1,4 +1,8 @@
 0.02 - ???
+  * clean-up of the package exports, by way of using STRING= on the
+    Gambol operator tests instead of EQ*, which is picky about packages
+  * made FAIL part of SEARCH-RULES, so you can't accidentally make it
+    a true fact
   * added PL-RETRACT, and associated helpers
   * added PL-ASSERTA to insert new rules in the database at the
     beginning of the list for the functor
