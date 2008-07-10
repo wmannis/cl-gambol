@@ -61,5 +61,5 @@ This one adds a new fact to the database for each new integer for which it finds
     (fib ?n1 ?f1)
     (fib ?n2 ?f2)
     (is ?f (lop (+ ?f1 ?f2)))
-    (assertz ((is-fib ?n ?f))))
+    (assertz (is-fib ?n ?f)))
 }}}
