@@ -153,7 +153,7 @@
   `(cadddr ,x))
 
 (defmacro anon-var? (x)
-  `(eq (var-name ,x) '??))
+  `(string= (var-name ,x) '??))
 
 (defmacro lookup-var (var env)
   `(svref ,env (var-index ,var)))
@@ -165,10 +165,10 @@
   `(eq ,env *impossible*))
 
 (defmacro cut? (goal)
-  `(and (molecule-p ,goal) (eq (functor (mol-skel ,goal)) 'cut)))
+  `(and (molecule-p ,goal) (string= (functor (mol-skel ,goal)) 'cut)))
 
 (defmacro unify? (goal)
-  `(and (molecule-p ,goal) (eq (functor (mol-skel ,goal)) '=)))
+  `(and (molecule-p ,goal) (string= (functor (mol-skel ,goal)) '=)))
 
 (defmacro level-tag? (goal)
   `(eq ,goal '*level-tag*))
@@ -222,13 +222,13 @@
 ; Hooks to common lisp.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun lisp-hook? (goal)
-  (and (consp goal) (eq (car goal) 'lisp)))
+  (and (consp goal) (string= (car goal) 'lisp)))
 
 (defmacro lisp-hook-mol? (goal)
   `(and (molecule-p ,goal) (lisp-hook? (mol-skel ,goal))))
 
 (defun lisp-query? (goal)
-  (and (consp goal) (eq (car goal) 'lop)))
+  (and (consp goal) (string= (car goal) 'lop)))
 
 (defmacro lisp-query-mol? (goal)
   `(and (molecule-p ,goal) (lisp-query? (mol-skel ,goal))))
@@ -288,7 +288,7 @@
 ;; The general form is (is ?v1 ... ?vn (lop (lisp-hook))).
 ;; Binds the ?vi variables to the values returned from (lisp-hook).
 (defmacro is? (goal)
-  `(and (molecule-p ,goal) (eq (functor (mol-skel ,goal)) 'is)))
+  `(and (molecule-p ,goal) (string= (functor (mol-skel ,goal)) 'is)))
 
 (defun do-is (molecule)
   (let ((goal (mol-skel molecule))
@@ -464,15 +464,17 @@
           (continue-on ,back)))
 
 ;;; Helpers for SEARCH-RULES:
-(defmacro asserta? (goal)
-  `(and (molecule-p ,goal) (eql (functor (mol-skel ,goal)) 'asserta)))
+(defun asserta? (goal)
+  (and (molecule-p goal) (string= (functor (mol-skel goal)) 'asserta)))
 
 (defun assertz? (goal)
-  (and (molecule-p goal) (eql (functor (mol-skel goal)) 'assertz)))
+  (and (molecule-p goal) (string= (functor (mol-skel goal)) 'assertz)))
 
-(defmacro retract? (goal)
-  `(and (molecule-p ,goal) (eql (functor (mol-skel ,goal)) 'retract)))
+(defun retract? (goal)
+  (and (molecule-p goal) (string= (functor (mol-skel goal)) 'retract)))
 
+(defun fail? (goal)
+  (and (molecule-p goal) (string= (functor (mol-skel goal)) 'fail)))
 
 ;; Attempt to match a goal against rules in the database.
 (defun search-rules (goals rules level back)
@@ -506,11 +508,16 @@
            (succeed-continue goal (rest goals) nil level back))
           ;; Retract succeeds if it finds something to yank out.
           ((retract? goal)
-           (if (not (pl-retract (list (expand-logical-vars
-                                       (second (mol-skel goal))
-                                       (mol-env goal)))))
+           ;; FILTER-VARS because you can retract facts with logical
+           ;; variables, though not ??.
+           (if (not (pl-retract (list (filter-vars
+                                       (expand-logical-vars
+                                        (second (mol-skel goal))
+                                        (mol-env goal))))))
                (fail-continue goal back)
                (succeed-continue goal (rest goals) nil level back)))
+          ((fail? goal)
+           (fail-continue goal back))
 	  ; goal is a common lisp hook - always succeeds
 	  ((lisp-hook-mol? goal)
 	   (do-lisp-hook goal)
