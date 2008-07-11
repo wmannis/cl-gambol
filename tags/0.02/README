@@ -1,0 +1,48 @@
+                  Gambol - a slighly modified Frolic
+
+
+The GAMBOL package is a trivially modified extraction of the logic
+programming portion of the Frolic system written at the University of
+Utah.  I have made a few changes to get it to compile under a modern
+Common Lisp, in addition to a few style changes that don't alter any
+functionality. 
+
+For documentation, examples and a full list of the changes I've made
+to turn Frolic into Gambol, please see the software web site,
+http://cl-gambol.googlecode.com/ .
+
+
+
+                              COPYRIGHT
+
+This is a modification of the Frolic[1] system which can be found at
+the CMU AI Repository.  That software is under a BSD copyright
+(verified by personal communication with one of the original authors).
+My own largely trivial modifications to the system are released under
+the MIT license.
+
+[1] http://www.cs.cmu.edu/afs/cs.cmu.edu/project/ai-repository/ai/lang/prolog/impl/prolog/frolic/
+
+
+Copyright (c) 2008 William S. Annis.  All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGE.
