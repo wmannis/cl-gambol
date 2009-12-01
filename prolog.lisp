@@ -44,13 +44,17 @@
 (setf *print-circle* t)
 (proclaim '(optimize (speed 3)))
 
+;;; Controllable/accessible by the user.
 (defvar *impossible*          'no "make impossible look nice")
 (defvar *solved*             'yes "make solved look nice")
+(defvar *tracing*             nil "if t, tracing is turned on")
+(defvar *lips*                  0 "logical inferences per second")
+
+;;; Altered in the course of finding solutions.  These are candidates for
+;;; wrapping up into separate rule bases.
 (defvar *interactive*           t "true iff interacting with user")
 (defvar *auto-backtrack*      nil "return all solutions if true")
 (defvar *last-continuation*   nil "saved state of the system")
-(defvar *tracing*             nil "if t, tracing is turned on")
-(defvar *lips*                  0 "logical inferences per second")
 (defvar *trail*               nil "the trail, for backtracking")
 (defvar *x-env*               nil "env for goals")
 (defvar *y-env*               nil "env for rules")
