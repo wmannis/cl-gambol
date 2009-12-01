@@ -27,7 +27,10 @@
 
 (defpackage :gambol
   (:use :common-lisp)
-  (:export #:*-
+  (:export #:make-rulebase
+           #:current-rulebase
+           #:with-rulebase
+           #:*-
            #:?-
            #:??-
            #:??
