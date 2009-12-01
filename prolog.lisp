@@ -44,14 +44,15 @@
 (setf *print-circle* t)
 (proclaim '(optimize (speed 3)))
 
-;;; Controllable/accessible by the user.
+;;; Constants, really.
 (defvar *impossible*          'no "make impossible look nice")
 (defvar *solved*             'yes "make solved look nice")
+
+;;; Controllable/accessible by the user.
 (defvar *tracing*             nil "if t, tracing is turned on")
 (defvar *lips*                  0 "logical inferences per second")
 
-;;; Altered in the course of finding solutions.  These are candidates for
-;;; wrapping up into separate rule bases.
+;;; Altered in the course of finding solutions.
 (defvar *interactive*           t "true iff interacting with user")
 (defvar *auto-backtrack*      nil "return all solutions if true")
 (defvar *last-continuation*   nil "saved state of the system")
@@ -62,6 +63,23 @@
 (defvar *top-level-vars*      nil "saves top-level variable names")
 (defvar *num-slots*            -1 "number of logical variables in a query")
 (defvar *prolog-rules*  (make-hash-table) "hash table for prolog rule heads")
+
+;;; Multiple rulebases might be convenient.  In nice lisps, special
+;;; variables are thread-safe, to boot.
+(defun make-rulebase ()
+  (list t nil nil nil nil nil nil nil -1 (make-hash-table)))
+
+(defun current-rulebase ()
+  (list *interactive* *auto-backtrack* *last-continuation* *trail*
+        *x-env* *y-env* *top-level-envs* *top-level-vars* *num-slots*
+        *prolog-rules*))
+
+(defmacro with-rulebase (rulebase &body body)
+  `(destructuring-bind (*interactive* *auto-backtrack* *last-continuation*
+                        *trail* *x-env* *y-env*
+                        *top-level-envs* *top-level-vars*
+                        *num-slots* *prolog-rules*) ,rulebase
+     ,@body))
 
 
 ;; rule selector functions
