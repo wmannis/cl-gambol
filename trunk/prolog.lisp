@@ -924,21 +924,8 @@
 
 ;; Interactive version of assert
 ;; (used to be called :- but common lisp thinks :- is a keyword).
-
-;;; RRK -- Fixed a problem that the vectors in the body of the rules
-;;; were getting allocated into bps space.  Then when a destructive
-;;; operation occured, the new items were never traced.  This copies
-;;; all of those vectors out into the real heap space (but only the
-;;; vectors). 
-(defmacro *- (lhs &rest rhs)
-  `(let ((rule (cons ',lhs (magic-copy ',rhs))))
-     (pl-assert rule)))
-
-;;; Copies the top level sequences.
-(defun magic-copy (some-list)
-  (mapcar #'(lambda (element)
-              (if (vectorp element) (copy-seq element) element))
-          some-list))
+(defmacro *- (&rest rule)
+  `(pl-assert ',rule))
 
 ;; Interactive version of pl-solve-one.
 (defmacro ?- (&rest goals)
