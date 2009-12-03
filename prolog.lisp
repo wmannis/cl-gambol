@@ -486,7 +486,6 @@
     (format t " fails...~%")))
 
 (defmacro fail-continue (goal back)
-  ;(declare (ignore goal))
   `(progn (fail-trace ,goal)
           (continue-on ,back)))
 
