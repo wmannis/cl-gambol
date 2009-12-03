@@ -1,3 +1,10 @@
+0.03 - some date
+  * removed a magic incantation required to get around a PSL bug of
+    all things  
+  * added functions and macros to support multiple rulebases:
+    MAKE-RULEBASE, CURRENT-RULEBASE, WITH-RULEBASE
+  * minor style tweakery
+
 0.02 - July 10 2008
   * clean-up of the package exports, by way of using STRING= on the
     Gambol operator tests instead of EQ*, which is picky about packages

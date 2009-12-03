@@ -1,7 +1,7 @@
 ;;; -*- Mode: LISP; Syntax: Common-lisp; Package: gambol; Lowercase: Yes -*-
 ;;; $Id: package.lisp,v 1.1 2008-06-15 16:49:51-05 annis Exp annis $
 ;;;
-;;; Copyright (c) 2008 William S. Annis.  All rights reserved.
+;;; Copyright (c) 2008-2009 William S. Annis.  All rights reserved.
 ;;;
 ;;; Redistribution and use in source and binary forms, with or without
 ;;; modification, are permitted provided that the following conditions
