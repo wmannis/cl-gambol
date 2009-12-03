@@ -315,8 +315,10 @@
 (defun do-is (molecule)
   (let ((goal (mol-skel molecule))
 	(env (mol-env molecule)) 
-	(hook nil) (vars nil)
-	(retvals nil) (return-env t))
+	(hook nil)
+        (vars nil)
+	(retvals nil)
+        (return-env t))
     ; collect all of the logical variables
     (dolist (elt (cdr goal))
       (if (lisp-query? elt)
@@ -441,8 +443,11 @@
 
 ;; Search to solve goals in possible environment.
 (defun pl-search (goals level back)
-  (search-rules goals
-    (get-rule-molecules (goal-functor (first goals))) level back))
+  (search-rules
+    goals
+    (get-rule-molecules (goal-functor (first goals)))
+    level
+    back))
 
 
 ;; Called when a goal successfully matched a rule or fact in the database
@@ -538,6 +543,9 @@
                                         (mol-env goal))))))
                (fail-continue goal back)
                (succeed-continue goal (rest goals) nil level back)))
+          ;;
+          ;; Need abolish/1
+          ;;
           ((fail? goal)
            (fail-continue goal back))
 	  ; goal is a common lisp hook - always succeeds
