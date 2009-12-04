@@ -366,18 +366,20 @@
      (remhash ,functor *prolog-rules*)
      (set-env ,functor nil)))
 
-(defmacro all-prolog-rules ()
+(defmacro all-prolog-rules ()           ; nothing calls this! WSA 2009dec2
   `(let ((result nil))
      (maphash #'(lambda (key val)
 		  (declare (ignore key))
-		  (setf result (append val result))) *prolog-rules*)
+		  (setf result (append val result)))
+              *prolog-rules*)
      result))
 
 (defmacro remove-all-prolog-rules ()
   `(progn
      (maphash #'(lambda (key val)
 		  (declare (ignore val))
-		  (set-env key nil)) *prolog-rules*)
+		  (set-env key nil))
+              *prolog-rules*)
      (clrhash *prolog-rules*)))
 
 ;; Rule indexing.
@@ -449,7 +451,6 @@
     level
     back))
 
-
 ;; Called when a goal successfully matched a rule or fact in the database
 ;; (used for I/O and debugging).
 (defun succeed-trace (goal rule back)
@@ -466,7 +467,6 @@
                 (format t "Fact: ~S~%" rule))))))
 
 (defun succeed-continue (goal goals rule level back)
-  ;(declare (ignore goal rule))
   (succeed-trace goal rule back)
   ; pop level tags off top of goal stack and adjust level accordingly
   (loop
