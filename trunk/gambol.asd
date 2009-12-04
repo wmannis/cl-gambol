@@ -1,7 +1,7 @@
 ;;; -*- mode: lisp; syntax: common-lisp; package: CL-GRANNY; encoding: utf-8 -*-
 ;;; $Id$
 ;;;
-;;; Copyright (c) 2008 William S. Annis.  All rights reserved.
+;;; Copyright (c) 2008-2009 William S. Annis.  All rights reserved.
 ;;;
 ;;; Redistribution and use in source and binary forms, with or without
 ;;; modification, are permitted provided that the following conditions
@@ -30,7 +30,7 @@
 (defsystem :gambol
   :name "GAMBOL"
   :author "William S. Annis <wm.annis@gmail.com>"
-  :version "0.01"
+  :version "0.03"
   :maintainer "William S. Annis <wm.annis@gmail.com>"
   :licence "MIT License"
   :description "A small prolog library based on Frolic"
