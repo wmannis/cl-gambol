@@ -225,3 +225,27 @@ _function_
 _function_
 *`print-rule`* _`predicate`_
  prints all the rules for predicate.
+
+=== Multiple Rulebases ===
+
+As of the 0.03 release it is possible to have multiple, independent rulebases.
+
+_function_
+*`current-rulebase`*
+ returns a reference to the current rulebase.  This is useful if you want to keep the current global rulebase before wiping it.
+
+_function_
+*`make-rulebase`*
+ creates a new, blank rulebase.
+
+_macro_
+*`with-rulebase`* _`rulebase &body body`_
+ all prolog operations in the body will work with the given rulebase instead of the default.  Because Gambol's rulebase and state are contained in a bunch of special variables, you can nest this macro safely.  Given a blank default rulebase, this should return `nil`:
+{{{
+   (let ((default-rulebase (current-rulebase)))
+     (with-rulebase (make-rulebase)
+       (*- (fibonacci 0 1))
+       (*- (fibonacci 1 1))
+       (with-rulebase default-rulebase
+         (pl-solve-one '((fibonacci 0 1))))))
+}}}
