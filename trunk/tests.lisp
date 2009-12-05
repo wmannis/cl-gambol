@@ -217,4 +217,32 @@
      (??- (retract (fibonacci 0 1)))
      (pl-solve-one '((fibonacci 0 1))))))
 
+(addtest (gambol-tests)
+  rulebase-isolation-1
+  (ensure-null
+   (progn
+     (with-rulebase (make-rulebase)
+       (*- (fibonacci 0 1))
+       (*- (fibonacci 1 1)))
+     (pl-solve-one '((fibonacci 0 1))))))
+
+(addtest (gambol-tests)
+  rulebase-isolation-1
+  (ensure-null
+   (progn
+     (with-rulebase (make-rulebase)
+       (*- (fibonacci 0 1))
+       (*- (fibonacci 1 1)))
+     (pl-solve-one '((fibonacci 0 1))))))
+
+(addtest (gambol-tests)
+  rulebase-isolation-2
+  (ensure-null
+   (let ((default-rulebase (current-rulebase)))
+     (with-rulebase (make-rulebase)
+       (*- (fibonacci 0 1))
+       (*- (fibonacci 1 1))
+       (with-rulebase default-rulebase
+         (pl-solve-one '((fibonacci 0 1))))))))
+
 ;;; tests.lisp ends here

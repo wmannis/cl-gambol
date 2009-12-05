@@ -1,5 +1,4 @@
 ;;; -*- Mode: LISP; Syntax: Common-lisp; Package: gambol; Lowercase: Yes -*-
-;;; $Id: prolog.lisp,v 1.1 2008-06-15 16:49:34-05 annis Exp annis $
 ;;;
 ;;; See README for copyright information about this modification of FROLIC.
 
@@ -542,9 +541,6 @@
                                         (mol-env goal))))))
                (fail-continue goal back)
                (succeed-continue goal (rest goals) nil level back)))
-          ;;
-          ;; Need abolish/1
-          ;;
           ((fail? goal)
            (fail-continue goal back))
 	  ; goal is a common lisp hook - always succeeds
