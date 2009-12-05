@@ -4,6 +4,8 @@
   * added functions and macros to support multiple rulebases:
     MAKE-RULEBASE, CURRENT-RULEBASE, WITH-RULEBASE
   * minor style tweakery
+  * spent some time trying to find ways to reduce consing, to little
+    success so far
 
 0.02 - July 10 2008
   * clean-up of the package exports, by way of using STRING= on the
