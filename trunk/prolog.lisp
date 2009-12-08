@@ -861,7 +861,8 @@
   (let* ((env (gensym "ENV"))
          (binding-list (loop for var in vars
                              collecting (list var `(cdr (assoc ',var ,env))))))
-    `(dolist (,env (pl-solve-all ,goals))
+    `(do ((,env (pl-solve-one ,goals) (pl-solve-next)))
+         ((null ,env))
        (let ,binding-list
          ,@body))))
 
