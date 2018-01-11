@@ -1,18 +1,3 @@
-                  Gambol - a slighly modified Frolic
-
-
-The GAMBOL package is a trivially modified extraction of the logic
-programming portion of the Frolic system written at the University of
-Utah.  I have made a few changes to get it to compile under a modern
-Common Lisp, in addition to a few style changes that don't alter any
-functionality. 
-
-For documentation, examples and a full list of the changes I've made
-to turn Frolic into Gambol, please see the software web site,
-http://cl-gambol.googlecode.com/
-
-
-
                               COPYRIGHT
 
 This is a modification of the Frolic[1] system which can be found at
