@@ -36,16 +36,16 @@ Like Prolog, Gambol deals with facts, rules, procedures and queries.
 **Facts** are represented so:
 
 ```lisp
-(**- (mortal socrates))
-(**- (eat cats mice))
+(*- (mortal socrates))
+(*- (eat cats mice))
 ```
 
-The **`**-`** macro adds new facts and rules to the database.  A
+The **`*-`** macro adds new facts and rules to the database.  A
 predicate may have an arbitrary number of arguments. 
 
 **Rules** are represented so:
 
-  (**`**-`** head b,,1,, b,,2,, ... b,,n,,)
+  (**`*-`** head b,,1,, b,,2,, ... b,,n,,)
 
 Where the *b,,n,,* terms are called the *body* of the rule.  Within
 rules (and facts) you can use logical variables.  These are simply
@@ -53,7 +53,7 @@ lisp symbols that start with a question mark.  This represents, "if
 something is human, it is mortal" — 
 
 ```lisp
-(**- (mortal ?x) (human ?x))
+(*- (mortal ?x) (human ?x))
 ```
 
 Notice that a fact is just a degenerate sort of rule which is always true.
@@ -65,9 +65,9 @@ If you don't care about the term in a particular rule you can use
 predicate: 
 
 ```lisp
-(**- (append (?x . ?xs) ?ys (?x . ?zs))
+(*- (append (?x . ?xs) ?ys (?x . ?zs))
     (append ?xs ?ys ?zs))
-(**- (append nil ?ys ?ys))
+(*- (append nil ?ys ?ys))
 ```
 
 Notice that the Gambol unifier understands Lisp lists.  Where Prolog
@@ -94,7 +94,7 @@ below for function calls to interact with the database.
  failure](http://en.wikipedia.org/wiki/Negation_as_failure): 
 
 ```lisp
-(**- (not ?p)
+(*- (not ?p)
     ?p
     (cut)
     (fail))
@@ -113,7 +113,7 @@ below for function calls to interact with the database.
  accomplish the same thing: 
 
 ```lisp
-(**- (fibonacci 0 1))
+(*- (fibonacci 0 1))
 (?- (assert (fibonacci 0 1)))
 (pl-assert '((fibonacci 0 1)))
 ```
@@ -132,7 +132,7 @@ below for function calls to interact with the database.
  expression: 
 
 ```lisp
-GAMBOL> (**- (1- ?n ?result)
+GAMBOL> (*- (1- ?n ?result)
             (is ?result (lop (1- ?n))))
 ((1- ?N ?RESULT) (IS ?RESULT (LOP (1- ?N))))
 GAMBOL> (??- (1- 3 ?result))
@@ -151,7 +151,7 @@ GAMBOL> (??- (1- 3 ?result))
  expression returns non-nil the term is counted as a success. 
 
 ```lisp
-GAMBOL> (**- (greater-than ?x ?y) (lop (> ?x ?y)))
+GAMBOL> (*- (greater-than ?x ?y) (lop (> ?x ?y)))
 ((GREATER-THAN ?X ?Y) (LOP (> ?X ?Y)))
 GAMBOL> (??- (greater-than 5 7))
 NO
@@ -164,7 +164,7 @@ YES
  success.  This is used to get Lisp side-effects: 
 
 ```lisp
-GAMBOL> (**- (write ?x) (lisp (format t "~A" ?x)))
+GAMBOL> (*- (write ?x) (lisp (format t "~A" ?x)))
 ((WRITE ?X) (LISP (FORMAT T "~A" ?X)))
 GAMBOL> (?- (write (tasty pizza)))
 (TASTY PIZZA)
@@ -177,17 +177,17 @@ NIL
 ## API
 
 *special variable*  
-*`**TRACING**`**  
+**`*TRACING*`**  
  if set to `t` will cause queries to print out trace information.
 
 *special variable*  
-**`**LIPS**`**  
+**`*LIPS*`**  
  keeps track of how many logical inferences have been performed.  You
  reset this and combine it with timing output to assess how quickly
  Gambol's doing its work. 
 
 *macro*  
-**`**-`** *`rule`*  
+**`*-`** *`rule`*  
  adds new rules and facts to the database.  They are inserted in the
  order they arrive. 
 
@@ -301,7 +301,7 @@ rulebases.
 ```lisp
    (let ((default-rulebase (current-rulebase)))
      (with-rulebase (make-rulebase)
-       (**- (fibonacci 0 1))
+       (*- (fibonacci 0 1))
        (*- (fibonacci 1 1))
        (with-rulebase default-rulebase
          (pl-solve-one '((fibonacci 0 1))))))
